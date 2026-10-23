@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Users – VYRO Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="admin.css"></head>
+<body><div id="app"></div>
+<script type="module">
+import { start, db, $, esc, fmt } from "./admin.js";
+import { collection, getDocs, query, orderBy, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+start("Users", async me => {
+  const load = async () => {
+    const users = (await getDocs(query(collection(db, "users"), orderBy("createdAt", "desc")))).docs.map(d => ({ id: d.id, ...d.data() }));
+    const admins = new Set((await getDocs(collection(db, "admins"))).docs.map(d => d.id));
+    const draw = f => {
+      const rows = users.filter(u => (u.email + " " + u.name).toLowerCase().includes(f.toLowerCase()));
+      $("#tb").innerHTML = rows.length ? rows.map(u => `<tr><td>${esc(u.name) || '<span class="muted">No name</span>'}<br><span class="muted">${esc(u.email)}</span></td>
+        <td>${esc(u.provider)}</td><td>${fmt(u.createdAt)}</td>
+        <td>${admins.has(u.id) ? '<span class="tag">Admin</span> ' : ""}${u.id === me.uid ? "" : `<button class="btn sm ghost" data-id="${u.id}" data-email="${esc(u.email)}" data-a="${admins.has(u.id) ? 0 : 1}">${admins.has(u.id) ? "Remove admin" : "Make admin"}</button>`}</td></tr>`).join("") : '<tr><td colspan="4" class="muted">No users found.</td></tr>';
+    };
+    $("#main").innerHTML = `<p class="muted">${users.length} registered users</p><label for="s">Search by name or email</label><input id="s" style="max-width:340px"><div class="tbl" style="margin-top:1rem"><table><tr><th>User</th><th>Sign-in</th><th>Joined</th><th>Role</th></tr><tbody id="tb"></tbody></table></div>`;
+    draw(""); $("#s").oninput = e => draw(e.target.value);
+    $("#tb").onclick = async e => { const b = e.target.closest("button"); if (!b) return;
+      if (!confirm(b.dataset.a === "1" ? `Give ${b.dataset.email} admin access?` : `Remove admin access from ${b.dataset.email}?`)) return;
+      b.disabled = true;
+      if (b.dataset.a === "1") await setDoc(doc(db, "admins", b.dataset.id), { email: b.dataset.email, addedBy: me.uid }); else await deleteDoc(doc(db, "admins", b.dataset.id));
+      load(); };
+  };
+  await load();
+});
+</script></body></html>
