@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Posts – VYRO Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="admin.css"></head>
+<body><div id="app"></div>
+<script type="module">
+import { start, db, $, esc, fmt } from "./admin.js";
+import { collection, getDocs, query, orderBy, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+start("Posts", async () => {
+  let editing = null, posts = [];
+  const load = async () => {
+    posts = (await getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc")))).docs.map(d => ({ id: d.id, ...d.data() }));
+    $("#list").innerHTML = posts.length ? `<div class="tbl"><table><tr><th>Title</th><th>Status</th><th>Date</th><th>Actions</th></tr>${posts.map(p => `<tr><td>${esc(p.title)}</td><td><span class="tag">${p.published ? "Published" : "Draft"}</span></td><td>${fmt(p.createdAt)}</td>
+      <td><div class="row"><button class="btn sm ghost" data-id="${p.id}" data-op="edit">Edit</button><button class="btn sm ghost" data-id="${p.id}" data-op="pub">${p.published ? "Unpublish" : "Publish"}</button><button class="btn sm danger" data-id="${p.id}" data-op="del">Delete</button></div></td></tr>`).join("")}</table></div>` : '<p class="muted">No posts yet. Write your first post above.</p>';
+  };
+  $("#main").innerHTML = `<form class="form" id="pf"><h2 id="ft" style="margin-top:0">New post</h2>
+    <label for="t">Title</label><input id="t" required maxlength="140">
+    <label for="b">Content</label><textarea id="b" required style="min-height:180px"></textarea>
+    <label class="chk"><input type="checkbox" id="pu"> Publish on the blog</label>
+    <div class="row" style="margin-top:1.25rem"><button class="btn" type="submit" id="sv">Save post</button><button class="btn ghost" type="button" id="cn" hidden>Cancel</button></div><p id="msg" role="status"></p></form>
+    <h2>All posts</h2><div id="list"></div>`;
+  const reset = () => { editing = null; $("#pf").reset(); $("#ft").textContent = "New post"; $("#cn").hidden = true; };
+  $("#cn").onclick = reset;
+  $("#pf").onsubmit = async e => { e.preventDefault();
+    const d = { title: $("#t").value.trim(), body: $("#b").value.trim(), published: $("#pu").checked, updatedAt: serverTimestamp() };
+    if (editing) await updateDoc(doc(db, "posts", editing), d); else await addDoc(collection(db, "posts"), { ...d, createdAt: serverTimestamp() });
+    $("#msg").className = "ok"; $("#msg").textContent = "Saved."; reset(); load(); };
+  $("#list").onclick = async e => { const b = e.target.closest("button[data-op]"); if (!b) return; const p = posts.find(x => x.id === b.dataset.id);
+    if (b.dataset.op === "edit") { editing = p.id; $("#t").value = p.title; $("#b").value = p.body; $("#pu").checked = !!p.published; $("#ft").textContent = "Edit post"; $("#cn").hidden = false; scrollTo({ top: 0 }); return; }
+    if (b.dataset.op === "del") { if (!confirm("Delete this post? This cannot be undone.")) return; await deleteDoc(doc(db, "posts", p.id)); }
+    else await updateDoc(doc(db, "posts", p.id), { published: !p.published, updatedAt: serverTimestamp() });
+    load(); };
+  await load();
+});
+</script></body></html>
