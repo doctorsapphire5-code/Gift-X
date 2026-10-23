@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VYRO – Software for teams that ship</title>
+<meta name="description" content="VYRO helps your team plan, build and deliver work in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F7FB; --surface:#FFFFFF; --ink:#0F172A; --muted:#55607D;
+  --line:#DCE1EE; --accent:#5B3DF5; --accent-ink:#FFFFFF; --soft:#E8E5FF;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Instrument Sans','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#0B1020;--surface:#131A30;--ink:#EEF1FA;--muted:#9AA6C6;--line:#242C48;--accent:#8C78FF;--accent-ink:#0B1020;--soft:#1D1A45}
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font:400 1.0625rem/1.6 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.25rem}
+
+/* Header */
+header{border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0}
+.logo{font:800 1.5rem/1 var(--display);letter-spacing:-.03em;text-decoration:none}
+nav ul{display:flex;gap:1.5rem;list-style:none;padding:0;align-items:center}
+nav a{text-decoration:none;color:var(--muted);font-weight:500}
+nav a:hover{color:var(--ink)}
+.btn{display:inline-block;padding:.75rem 1.25rem;border-radius:10px;font-weight:600;text-decoration:none;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink)!important;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--ink)!important;border-color:var(--line)}
+.btn.sm{padding:.5rem 1rem}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:center;padding:4.5rem 0 4rem}
+h1{font:800 clamp(2.4rem,6vw,4.2rem)/1.02 var(--display);letter-spacing:-.035em;max-width:14ch}
+.hero p{margin:1.25rem 0 2rem;color:var(--muted);max-width:46ch;font-size:1.15rem}
+.actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.mark{width:100%;max-width:340px;justify-self:center}
+.mark path{fill:none;stroke:var(--accent);stroke-width:26;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:900;stroke-dashoffset:900;animation:draw 1.4s .2s ease-out forwards}
+.mark path.b{stroke:var(--ink);animation-delay:.6s}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* Sections */
+section{padding:3.5rem 0;border-top:1px solid var(--line)}
+h2{font:700 clamp(1.7rem,3.5vw,2.4rem)/1.1 var(--display);letter-spacing:-.025em;max-width:20ch;margin-bottom:2rem}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.features div{border-left:4px solid var(--accent);padding-left:1rem}
+.features h3{font:700 1.2rem/1.2 var(--display);margin-bottom:.4rem}
+.features p{color:var(--muted)}
+.steps{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;counter-reset:s}
+.steps li{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:var(--soft);color:var(--accent);font:700 1rem var(--display);margin-bottom:.75rem}
+.steps h3{font:700 1.15rem var(--display);margin-bottom:.3rem}
+.steps p{color:var(--muted)}
+.cta{background:var(--ink);color:var(--paper);border-radius:20px;padding:3rem 2rem;margin:1rem 0 4rem;display:flex;gap:1.5rem;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.cta h2{margin:0;color:var(--paper)}
+.cta .btn{background:var(--paper);border-color:var(--paper);color:var(--ink)!important}
+
+/* Footer */
+footer{border-top:1px solid var(--line);padding:2rem 0 3rem;color:var(--muted);font-size:.95rem}
+.foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+footer ul{display:flex;gap:1.25rem;list-style:none;padding:0;flex-wrap:wrap}
+footer a{text-decoration:none}
+footer a:hover{color:var(--ink)}
+
+@media (max-width:820px){
+  .hero,.features,.steps{grid-template-columns:1fr}
+  .mark{max-width:200px;justify-self:start;order:-1}
+  nav ul li.hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .mark path{animation:none;stroke-dashoffset:0}
+  html{scroll-behavior:auto}.btn{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="index.html" aria-label="VYRO home">VYRO</a>
+    <nav aria-label="Main">
+      <ul>
+        <li class="hide-sm"><a href="features.html">Features</a></li>
+        <li class="hide-sm"><a href="pricing.html">Pricing</a></li>
+        <li class="hide-sm"><a href="about.html">About</a></li>
+        <li class="hide-sm"><a href="contact.html">Contact</a></li>
+        <li><a class="btn sm" id="authLink" href="login.html">Log in</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Run your work in one place.</h1>
+        <p>VYRO helps your team plan, build and deliver without switching between tools. Start free and invite your team in minutes.</p>
+        <div class="actions">
+          <a class="btn" href="login.html">Get started free</a>
+          <a class="btn ghost" href="features.html">See features</a>
+        </div>
+      </div>
+      <svg class="mark" viewBox="0 0 200 200" role="img" aria-label="VYRO logo mark">
+        <path d="M20 30 L100 170 L180 30"/>
+        <path class="b" d="M60 30 L100 100 L140 30"/>
+      </svg>
+    </div>
+
+    <section aria-labelledby="f">
+      <h2 id="f">Built for teams that want to move faster</h2>
+      <div class="features">
+        <div>
+          <h3>Simple to start</h3>
+          <p>Create an account, add your project and begin working. No setup calls or long training.</p>
+        </div>
+        <div>
+          <h3>Everything connected</h3>
+          <p>Tasks, files and updates live together, so everyone sees the same current picture.</p>
+        </div>
+        <div>
+          <h3>Secure by default</h3>
+          <p>Your data is protected with sign-in controls and access rules you manage yourself.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h">
+      <h2 id="h">Up and running in three steps</h2>
+      <ol class="steps">
+        <li><h3>Create your account</h3><p>Sign up with your email address or Google account.</p></li>
+        <li><h3>Set up your workspace</h3><p>Name your project and invite the people you work with.</p></li>
+        <li><h3>Start working</h3><p>Add your first task and track progress as it happens.</p></li>
+      </ol>
+    </section>
+
+    <div class="cta">
+      <h2>Ready to try VYRO?</h2>
+      <a class="btn" href="login.html">Create free account</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p>&copy; <span id="yr">2026</span> VYRO. All rights reserved.</p>
+    <ul>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script type="module">
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDvxJHLx5jHNP0Xc_Ev0GJoQrSo32jXvRk",
+  authDomain: "software-c90ed.firebaseapp.com",
+  projectId: "software-c90ed",
+  storageBucket: "software-c90ed.firebasestorage.app",
+  messagingSenderId: "480083163920",
+  appId: "1:480083163920:web:00d40cab0388ac95738395",
+  measurementId: "G-MC9WQEJPTS"
+};
+
+try {
+  const auth = getAuth(initializeApp(firebaseConfig));
+  const link = document.getElementById('authLink');
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      link.textContent = 'Log out';
+      link.href = '#';
+      link.onclick = async (e) => { e.preventDefault(); await signOut(auth); };
+    } else {
+      link.textContent = 'Log in';
+      link.href = 'login.html';
+      link.onclick = null;
+    }
+  });
+} catch (err) {
+  console.error('Firebase error:', err);
+}
+</script>
+</body>
+</html>
