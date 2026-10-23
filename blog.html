@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog – VYRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body><div id="hdr"></div><main class="wrap page">
+<h1>News and updates</h1>
+<p class="lead">Product news, tips and company updates. Replace these sample posts with your own.</p>
+<div id="list"><div class="post"><time datetime="2026-10-20">20 Oct 2026</time><h3>Welcome to VYRO</h3><p class="muted">Why we built VYRO and what is coming next.</p></div>
+<div class="post"><time datetime="2026-10-10">10 Oct 2026</time><h3>Five ways to run better team meetings</h3><p class="muted">Practical tips for shorter, clearer meetings.</p></div>
+</div><script type="module">
+import { app } from "./site.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+try {
+  const snap = await getDocs(query(collection(getFirestore(app), "posts"), where("published", "==", true)));
+  const posts = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  if (posts.length) document.getElementById("list").innerHTML = posts.map(p => `<article class="post"><time>${p.createdAt ? p.createdAt.toDate().toLocaleDateString() : ""}</time><h3>${esc(p.title)}</h3><p class="muted" style="white-space:pre-wrap">${esc(p.body)}</p></article>`).join("");
+} catch (e) { console.error(e); }
+</script></main><div id="ftr"></div><script type="module" src="site.js"></script></body></html>
