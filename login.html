@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in – VYRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body><div id="hdr"></div><main class="wrap page">
+<div class="form"><h1 id="title" style="font-size:2.2rem">Log in</h1>
+<form id="f" novalidate>
+<label for="em">Email</label><input id="em" type="email" required autocomplete="email">
+<label for="pw">Password</label><input id="pw" type="password" required autocomplete="current-password" minlength="6">
+<button class="btn" id="go" type="submit">Log in</button></form>
+<button class="btn ghost" id="g" type="button" style="width:100%;margin-top:.75rem">Continue with Google</button>
+<p id="msg" role="status"></p>
+<p class="muted" style="margin-top:1rem"><span id="q">New to VYRO?</span> <button class="link" id="sw" type="button">Create an account</button></p>
+<p style="margin-top:.5rem"><button class="link" id="rs" type="button">Forgot your password?</button></p></div>
+<script type="module">
+import { auth, app } from "./site.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+const $ = id => document.getElementById(id); let up = false;
+const say = (m, ok) => { $("msg").textContent = m; $("msg").className = ok ? "ok" : "err"; };
+const human = c => ({"auth/invalid-credential":"Email or password is incorrect.","auth/email-already-in-use":"An account with this email already exists. Log in instead.","auth/weak-password":"Use a password with at least 6 characters.","auth/invalid-email":"Enter a valid email address.","auth/missing-password":"Enter your password.","auth/popup-closed-by-user":"Google sign-in was closed before it finished.","auth/too-many-requests":"Too many attempts. Try again in a few minutes."})[c] || "Something went wrong. Try again.";
+const db = getFirestore(app);
+const save = async (u, p) => { try { const r = doc(db, "users", u.uid); if (!(await getDoc(r)).exists()) await setDoc(r, { email: u.email, name: u.displayName || "", provider: p, createdAt: serverTimestamp() }); } catch (e) { console.error(e); } };
+const done = () => { location.href = "index.html"; };
+$("sw").onclick = () => { up = !up; $("title").textContent = $("go").textContent = up ? "Create account" : "Log in"; $("q").textContent = up ? "Already have an account?" : "New to VYRO?"; $("sw").textContent = up ? "Log in" : "Create an account"; $("pw").autocomplete = up ? "new-password" : "current-password"; say(""); };
+$("f").onsubmit = async e => { e.preventDefault(); say("");
+  try { const a = $("em").value.trim(), b = $("pw").value; const c = await (up ? createUserWithEmailAndPassword : signInWithEmailAndPassword)(auth, a, b); if (up) await save(c.user, "password"); done(); } catch (x) { say(human(x.code)); } };
+$("g").onclick = async () => { try { const c = await signInWithPopup(auth, new GoogleAuthProvider()); await save(c.user, "google"); done(); } catch (x) { say(human(x.code)); } };
+$("rs").onclick = async () => { const a = $("em").value.trim(); if (!a) return say("Enter your email above, then select Forgot your password.");
+  try { await sendPasswordResetEmail(auth, a); say("Password reset email sent. Check your inbox.", true); } catch (x) { say(human(x.code)); } };
+</script>
+</main><div id="ftr"></div><script type="module" src="site.js"></script></body></html>
