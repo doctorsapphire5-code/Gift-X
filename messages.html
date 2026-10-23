@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Messages – VYRO Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="admin.css"></head>
+<body><div id="app"></div>
+<script type="module">
+import { start, db, $, esc, fmt } from "./admin.js";
+import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+start("Messages", async () => {
+  const load = async () => {
+    const ms = (await getDocs(query(collection(db, "messages"), orderBy("createdAt", "desc")))).docs.map(d => ({ id: d.id, ...d.data() }));
+    $("#main").innerHTML = ms.length ? `<div class="tbl"><table><tr><th>From</th><th>Message</th><th>Date</th><th>Actions</th></tr>${ms.map(m => `<tr class="${m.read ? "" : "unread"}"><td>${esc(m.name)}<br><span class="muted">${esc(m.email)}</span></td>
+      <td style="white-space:pre-wrap;max-width:420px">${esc(m.message)}</td><td>${fmt(m.createdAt)}</td>
+      <td><div class="row"><a class="btn sm" href="mailto:${esc(m.email)}?subject=Re: your message to VYRO">Reply</a>
+      ${m.read ? "" : `<button class="btn sm ghost" data-id="${m.id}" data-op="read">Mark read</button>`}
+      <button class="btn sm danger" data-id="${m.id}" data-op="del">Delete</button></div></td></tr>`).join("")}</table></div>` : '<p class="muted">No messages yet. Messages from the Contact page appear here.</p>';
+  };
+  $("#main").onclick = async e => { const b = e.target.closest("button[data-op]"); if (!b) return;
+    if (b.dataset.op === "del") { if (!confirm("Delete this message? This cannot be undone.")) return; await deleteDoc(doc(db, "messages", b.dataset.id)); }
+    else await updateDoc(doc(db, "messages", b.dataset.id), { read: true });
+    load(); };
+  await load();
+});
+</script></body></html>
