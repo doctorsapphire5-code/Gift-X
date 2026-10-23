@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact – VYRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head>
+<body><div id="hdr"></div><main class="wrap page">
+<h1>Contact us</h1>
+<p class="lead">Questions about VYRO? Send a message and we will reply by email.</p>
+<form class="form" id="cf">
+<label for="n">Name</label><input id="n" name="Name" required autocomplete="name">
+<label for="e">Email</label><input id="e" name="Email" type="email" required autocomplete="email">
+<label for="m">Message</label><textarea id="m" name="Message" required></textarea>
+<button class="btn" type="submit">Send message</button><p id="msg" role="status"></p></form>
+<p class="muted" style="margin-top:1.5rem">Or email <a href="mailto:hello@vyro.com">hello@vyro.com</a></p>
+<script type="module">
+import { app } from "./site.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+const db = getFirestore(app), f = document.getElementById("cf"), m = document.getElementById("msg");
+f.onsubmit = async e => { e.preventDefault(); m.className = ""; m.textContent = "";
+  try { await addDoc(collection(db, "messages"), { name: f.n.value.trim(), email: f.e.value.trim(), message: f.m.value.trim(), createdAt: serverTimestamp(), read: false });
+    f.reset(); m.className = "ok"; m.textContent = "Message sent. We will reply by email."; }
+  catch (x) { console.error(x); m.className = "err"; m.textContent = "Message could not be sent. Try again or email us directly."; } };
+</script></main><div id="ftr"></div><script type="module" src="site.js"></script></body></html>
